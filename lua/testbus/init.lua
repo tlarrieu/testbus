@@ -38,6 +38,8 @@ local run = {
 
 ---- Public interface ----------------------------------------------------------
 return {
+  setup = function()
+  end,
   run = run,
   lualine = {
     function()
