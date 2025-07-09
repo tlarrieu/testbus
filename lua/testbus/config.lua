@@ -14,4 +14,9 @@ return {
   },
   diagnostics = { virtual_lines = true, virtual_text = false, underline = false },
   json_path = '/tmp/testbus.json',
+  run = {
+    nearest = vim.cmd.TestNearest,
+    file = vim.cmd.TestFile,
+    last = vim.cmd.TestLast
+  },
 }

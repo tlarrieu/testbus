@@ -3,6 +3,8 @@ local adapters = require('testbus.adapters')
 local state = require('testbus.state')
 local config = require('testbus.config')
 
+local M = {}
+
 ---- Drawer --------------------------------------------------------------------
 ---@enum Outcome
 Outcome = {
@@ -29,34 +31,34 @@ local handlers = {
   ruby = adapters.rspec
 }
 
-local wrap = function(fun) return function() return state.start() and fun() end end
-local run = {
-  nearest = wrap(vim.cmd.TestNearest),
-  file = wrap(vim.cmd.TestFile),
-  last = wrap(vim.cmd.TestLast)
+---- Public interface ----------------------------------------------------------
+M.setup = function()
+end
+
+M.run = {
+  nearest = function() state.start(config.run.nearest) end,
+  file = function() state.start(config.run.file) end,
+  last = function() state.start(config.run.last) end,
 }
 
----- Public interface ----------------------------------------------------------
-return {
-  setup = function()
+M.statusline = {
+  icon = function()
+    return state.has_run() and (
+      '󰙨 → ' .. (
+        (state.error_count() > 0)
+        and glyphs.number(state.error_count())
+        or (config.status[state.current()] or {}).icon
+      )
+    ) or ''
   end,
-  run = run,
-  statusline = {
-    icon = function()
-      return state.has_run() and (
-        '󰙨 → ' .. (
-          (state.error_count() > 0)
-          and glyphs.number(state.error_count())
-          or (config.status[state.current()] or {}).icon
-        )
-      ) or ''
-    end,
-    color = function() return (config.status[state.current()] or {}).color end,
-  },
-  redraw = function(data)
-    local success, result = handlers.ruby(data)
-    if success and result then draw(result) end
-  end,
-  interrupt = function() if state.is_running() then state.stop() end end
+  color = function() return (config.status[state.current()] or {}).color end,
 }
---------------------------------------------------------------------------------
+
+M.redraw = function(data)
+  local success, result = handlers.ruby(data)
+  if success and result then draw(result) end
+end
+
+M.interrupt = function() if state.is_running() then state.stop() end end
+
+return M

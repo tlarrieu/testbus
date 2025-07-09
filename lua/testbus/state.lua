@@ -23,7 +23,7 @@ _M.is_running = function()
 end
 _M.is_done = function() return not _M.is_running() end
 
-_M.start = function()
+_M.start = function(fun)
   if _M.is_running() then return false end
   file.rm(config.json_path)
   vim.diagnostic.set(_M.namespace(), 0, {}, {})
@@ -31,7 +31,7 @@ _M.start = function()
   vim.api.nvim_buf_clear_namespace(vim.g.testbus_bufnr, _M.namespace(), 0, -1)
   vim.g.testbus_status = config.status.running.id
   vim.g.testbus_failures = nil
-  return true
+  fun()
 end
 _M.cmdline = function() vim.g.testbus_status = config.status.cmdline.id end
 _M.stop = function() vim.g.testbus_status = config.status.stopped.id end
