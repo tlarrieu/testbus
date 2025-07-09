@@ -1,7 +1,6 @@
 local ansi = require('testbus.ansi')
 local file = require('testbus.file')
 local state = require('testbus.state')
-local config = require('testbus.config')
 
 -- TODO: add support for multiple buffers
 -- Right now we only support the current one, and ignore files not matching
@@ -10,15 +9,16 @@ local config = require('testbus.config')
 -- be more robust to be generic.
 
 ---@param data table<string> stdout from running job
+---@param path string path to the JSON file holding the test results
 ---@return boolean, Report?
-return function(data)
+return function(data, path)
   if state.is_done() then return false, nil end
 
   local stdout = table.concat(data)
   if stdout:find('shutting down') then return false, state.stop() end
   if stdout:find('pry') then return false, state.cmdline() end
 
-  local success, json = pcall(function() return vim.json.decode(file.read(config.json_path)) end)
+  local success, json = pcall(function() return vim.json.decode(file.read(path)) end)
 
   if not success then return false, nil end
 

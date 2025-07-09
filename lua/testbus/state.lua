@@ -1,5 +1,4 @@
 local file = require('testbus.file')
-local config = require('testbus.config')
 
 ---@class State
 ---@field namespace function
@@ -14,33 +13,45 @@ local config = require('testbus.config')
 ---@field current function
 local _M = {}
 
+---@enum Status
+Status = {
+  RUNNING = 'running',
+  CMDLINE = 'cmdline',
+  STOPPED = 'stopped',
+  SUCCESS = 'success',
+  FAILURE = 'failure',
+  PANIC = 'panic',
+}
+
 _M.namespace = function() return vim.api.nvim_create_namespace('testbus') end
 
 _M.has_run = function() return vim.g.testbus_status ~= nil end
 _M.is_running = function()
-  return vim.g.testbus_status == config.status.running.id
-      or vim.g.testbus_status == config.status.cmdline.id
+  return vim.g.testbus_status == Status.RUNNING
+      or vim.g.testbus_status == Status.CMDLINE
 end
 _M.is_done = function() return not _M.is_running() end
 
-_M.start = function(fun)
+---@param fun fun() the function starting the test, it should write to a file and to STDOUT
+---@param path string the path to the output json
+_M.start = function(fun, path)
   if _M.is_running() then return false end
-  file.rm(config.json_path)
+  file.rm(path)
   vim.diagnostic.set(_M.namespace(), 0, {}, {})
   vim.g.testbus_bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(vim.g.testbus_bufnr, _M.namespace(), 0, -1)
-  vim.g.testbus_status = config.status.running.id
+  vim.g.testbus_status = Status.RUNNING
   vim.g.testbus_failures = nil
   fun()
 end
-_M.cmdline = function() vim.g.testbus_status = config.status.cmdline.id end
-_M.stop = function() vim.g.testbus_status = config.status.stopped.id end
-_M.panic = function() vim.g.testbus_status = config.status.panic.id end
+_M.cmdline = function() vim.g.testbus_status = Status.CMDLINE end
+_M.stop = function() vim.g.testbus_status = Status.STOPPED end
+_M.panic = function() vim.g.testbus_status = Status.PANIC end
 _M.fail = function(count)
-  vim.g.testbus_status = config.status.failure.id
+  vim.g.testbus_status = Status.FAILURE
   vim.g.testbus_failures = count
 end
-_M.succeed = function() vim.g.testbus_status = config.status.success.id end
+_M.succeed = function() vim.g.testbus_status = Status.SUCCESS end
 
 _M.current = function() return vim.g.testbus_status end
 _M.error_count = function() return vim.g.testbus_failures or 0 end

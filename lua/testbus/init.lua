@@ -32,13 +32,14 @@ local handlers = {
 }
 
 ---- Public interface ----------------------------------------------------------
-M.setup = function()
+M.setup = function(opts)
+  config = vim.tbl_deep_extend('force', config, opts)
 end
 
 M.run = {
-  nearest = function() state.start(config.run.nearest) end,
-  file = function() state.start(config.run.file) end,
-  last = function() state.start(config.run.last) end,
+  nearest = function() state.start(config.run.nearest, config.json_path) end,
+  file = function() state.start(config.run.file, config.json_path) end,
+  last = function() state.start(config.run.last, config.json_path) end,
 }
 
 M.statusline = {
@@ -55,7 +56,7 @@ M.statusline = {
 }
 
 M.redraw = function(data)
-  local success, result = handlers.ruby(data)
+  local success, result = handlers.ruby(data, config.json_path)
   if success and result then draw(result) end
 end
 
