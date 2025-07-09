@@ -1,11 +1,11 @@
 return {
   status = {
     running = { id = 'running', icon = '󰐌', color = nil }, -- white
-    cmdline = { id = 'cmdline', icon = '', color = 'DiagnosticHint' }, -- violet
-    stopped = { id = 'stopped', icon = '', color = 'DiagnosticWarn' }, -- yellow
-    success = { id = 'success', icon = '󰗠', color = 'DiagnosticOk' }, -- green
-    failure = { id = 'failure', icon = '󰅙', color = 'DiagnosticError' }, -- red
-    panic = { id = 'panic', icon = '󰀨', color = 'DiagnosticUnnecessary' }, -- pink
+    cmdline = { id = 'cmdline', icon = '', color = 'DiagnosticHint' },
+    stopped = { id = 'stopped', icon = '', color = 'DiagnosticWarn' },
+    success = { id = 'success', icon = '󰗠', color = 'DiagnosticOk' },
+    failure = { id = 'failure', icon = '󰅙', color = 'DiagnosticError' },
+    panic = { id = 'panic', icon = '󰀨', color = 'DiagnosticUnnecessary' },
   },
   markers = {
     passed = { ' ✔ ', 'DiagnosticPass' },
