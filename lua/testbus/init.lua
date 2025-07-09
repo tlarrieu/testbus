@@ -41,8 +41,8 @@ return {
   setup = function()
   end,
   run = run,
-  lualine = {
-    function()
+  statusline = {
+    icon = function()
       return state.has_run() and (
         '󰙨 → ' .. (
           (state.error_count() > 0)
