@@ -32,6 +32,7 @@ local draw = function(report)
 end
 --------------------------------------------------------------------------------
 
+-- TODO: provide a formatter (move it from personal configuration) and expose the required rspec options to access it
 local handlers = {
   ruby = adapters.rspec
 }
