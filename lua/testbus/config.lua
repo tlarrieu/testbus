@@ -19,17 +19,11 @@
 ---@field mixed MarkerConfig virtual text for partially passed test
 ---@field failed MarkerConfig virtual text for failed tests
 
----@class RunConfig
----@field nearest fun() function to run nearest test
----@field file fun() function to run current file
----@field last fun() function to run last tests
-
 ---@class Config
 ---@field status StatusesConfig
 ---@field markers MarkersConfig
 ---@field diagnostics vim.diagnostics.Opts
 ---@field json_path string path to the JSON output by tests
----@field run RunConfig
 return {
   status = {
     running = { icon = '󰐌', color = nil }, -- white
@@ -46,9 +40,4 @@ return {
   },
   diagnostics = { virtual_lines = true, virtual_text = false, underline = false },
   json_path = '/tmp/testbus.json',
-  run = {
-    nearest = vim.cmd.TestNearest,
-    file = vim.cmd.TestFile,
-    last = vim.cmd.TestLast
-  },
 }
