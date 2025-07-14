@@ -49,7 +49,9 @@ M.statusline = {
 }
 
 M.redraw = function(data)
-  local success, result = state.handler().handle(data, config.json_path)
+  local handler = state.handler()
+  if not handler then return end
+  local success, result = handler.handle(data, config.json_path)
   if success and result then draw(result) end
 end
 
