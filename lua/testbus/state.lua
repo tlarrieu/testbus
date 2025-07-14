@@ -11,6 +11,7 @@ local file = require('testbus.file')
 ---@field fail fun(count: integer) notify failure (with error count)
 ---@field succeed fun() notify success
 ---@field current fun(): string get current state status
+---@field handler fun(): Handler
 local M = {}
 
 ---@enum Status
@@ -39,6 +40,7 @@ M.start = function(fun, path)
   file.rm(path)
   vim.diagnostic.set(M.namespace(), 0, {}, {})
   vim.g.testbus_bufnr = vim.api.nvim_get_current_buf()
+  vim.g.testbus_adapter = vim.bo.filetype
   vim.api.nvim_buf_clear_namespace(vim.g.testbus_bufnr, M.namespace(), 0, -1)
   vim.g.testbus_status = Status.RUNNING
   vim.g.testbus_failures = nil
@@ -55,5 +57,14 @@ M.succeed = function() vim.g.testbus_status = Status.SUCCESS end
 
 M.current = function() return vim.g.testbus_status end
 M.error_count = function() return vim.g.testbus_failures or 0 end
+
+M.handler = function()
+  local adapters = require('testbus.adapters')
+  local adapter = vim.g.testbus_adapter
+  if adapter then
+    if adapter == 'ruby' then return adapters.rspec end
+  end
+  return adapters.default
+end
 
 return M

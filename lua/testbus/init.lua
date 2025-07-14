@@ -32,11 +32,6 @@ local draw = function(report)
 end
 --------------------------------------------------------------------------------
 
--- TODO: provide a formatter (move it from personal configuration) and expose the required rspec options to access it
-local handlers = {
-  ruby = adapters.rspec
-}
-
 ---- Public interface ----------------------------------------------------------
 M.setup = function(opts) config = vim.tbl_deep_extend('force', config, opts) end
 
@@ -54,11 +49,12 @@ M.statusline = {
 }
 
 M.redraw = function(data)
-  local success, result = handlers.ruby(data, config.json_path)
+  local success, result = state.handler().handle(data, config.json_path)
   if success and result then draw(result) end
 end
 
 M.start = function(fun) state.start(fun, config.json_path) end
 M.interrupt = function() if state.is_running() then state.stop() end end
+M.adapters = adapters
 
 return M

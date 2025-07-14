@@ -2,6 +2,8 @@ local ansi = require('testbus.ansi')
 local file = require('testbus.file')
 local state = require('testbus.state')
 
+local M = {}
+
 -- TODO: add support for multiple buffers
 -- Right now we only support the current one, and ignore files not matching
 -- the current one.
@@ -11,7 +13,7 @@ local state = require('testbus.state')
 ---@param data table<string> stdout from running job
 ---@param path string path to the JSON file holding the test results
 ---@return boolean, Report?
-return function(data, path)
+M.handle = function(data, path)
   if state.is_done() then return false, nil end
 
   local stdout = table.concat(data)
@@ -70,3 +72,16 @@ return function(data, path)
 
   return true, { bufnr = bufnr, outcomes = outcomes, diag = diag }
 end
+
+local curpath = debug.getinfo(1, "S").source:sub(2):match("(.*/)") or "./"
+
+M.options = {
+  '--require',
+  curpath .. 'json_formatter.rb',
+  '--format=JsonFormatter',
+  '--out=/tmp/testbus.json',
+  '--format=progress'
+}
+
+---@type Handler
+return M
