@@ -33,6 +33,14 @@ M.is_running = function()
 end
 M.is_done = function() return not M.is_running() end
 
+local set_adapter = function()
+  if vim.bo.filetype == 'ruby' then
+    vim.g.testbus_adapter = 'rspec'
+  else
+    vim.g.testbus_adapter = 'default'
+  end
+end
+
 ---@param fun fun() the function starting the test, it should write to a file and to STDOUT
 ---@param path string the path to the output json
 M.start = function(fun, path)
@@ -40,7 +48,7 @@ M.start = function(fun, path)
   file.rm(path)
   vim.diagnostic.set(M.namespace(), 0, {}, {})
   vim.g.testbus_bufnr = vim.api.nvim_get_current_buf()
-  vim.g.testbus_adapter = vim.bo.filetype
+  set_adapter()
   vim.api.nvim_buf_clear_namespace(vim.g.testbus_bufnr, M.namespace(), 0, -1)
   vim.g.testbus_status = Status.RUNNING
   vim.g.testbus_failures = nil
@@ -59,12 +67,7 @@ M.current = function() return vim.g.testbus_status end
 M.error_count = function() return vim.g.testbus_failures or 0 end
 
 M.handler = function()
-  local adapters = require('testbus.adapters')
-  local adapter = vim.g.testbus_adapter
-  if adapter then
-    if adapter == 'ruby' then return adapters.rspec end
-  end
-  return adapters.default
+  return require('testbus.adapters')[vim.g.testbus_adapter]
 end
 
 return M
