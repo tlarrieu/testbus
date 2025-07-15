@@ -10,6 +10,25 @@ local M = {}
 -- This is fine for now, since we only run tests within a single spec file, but it'd
 -- be more robust to be generic.
 
+local create_diagnostic = function(bufnr, lnum, message)
+  local _, col = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]:find('^%s*')
+  return {
+    bufnr = bufnr,
+    lnum = lnum,
+    col = col,
+    severity = vim.diagnostic.severity.ERROR,
+    message = message,
+    source = 'rspec',
+    namespace = state.namespace(),
+  }
+end
+
+local simplify_message = function(str)
+  return str
+      :gsub(' for class .*$', '')
+      :gsub(' for #<RSpec::.*$', '')
+end
+
 ---@param data table<string> stdout from running job
 ---@param path string path to the JSON file holding the test results
 ---@return boolean, Report?
@@ -37,6 +56,32 @@ M.handle = function(data, path)
   local bufnr = vim.g.testbus_bufnr
   local bufname = vim.api.nvim_buf_get_name(bufnr)
 
+  if json.messages then
+    for _, message in ipairs(json.messages or {}) do
+      local errpath, lnum, error, errname
+      for line in ansi.strip(message):gmatch('[^\n]+') do
+        if errname and not error then                     -- the error is located right after the error name
+          error = simplify_message(line):match('%s*(.*)') -- strip leading blank spaces
+        end
+
+        local _errname = line:match('.*[^/]Error:') -- we don't want to match the `Failure/Error: …` line
+        if _errname and not errname then errname = _errname end
+
+        -- locate the line number to anchor the diagnostic to
+        local _errpath, _lnum = line:match('# ./(.*):(%d+)')
+        if _errpath and _lnum then
+          if bufname:find(vim.fs.normalize(_errpath)) then
+            errpath, lnum = _errpath, tonumber(_lnum) - 1
+            break
+          end
+        end
+      end
+      if error and errpath and lnum then
+        table.insert(diag, create_diagnostic(bufnr, lnum, errname .. ' ' .. error))
+      end
+    end
+  end
+
   for _, example in ipairs(json.examples) do
     local file_path = example.included_from.file_path or example.file_path
     if bufname:find(vim.fs.normalize(file_path)) then
@@ -56,16 +101,8 @@ M.handle = function(data, path)
           end
         end
 
-        local _, col = vim.api.nvim_buf_get_lines(bufnr, anchor, anchor + 1, true)[1]:find('^%s*')
-        table.insert(diag, {
-          bufnr = bufnr,
-          lnum = anchor,
-          col = col,
-          severity = vim.diagnostic.severity.ERROR,
-          message = ansi.strip(example.exception.message),
-          source = 'rspec',
-          namespace = state.namespace(),
-        })
+        local message = simplify_message(ansi.strip(example.exception.message))
+        table.insert(diag, create_diagnostic(bufnr, anchor, message))
       end
     end
   end
