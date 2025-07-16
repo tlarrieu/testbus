@@ -54,6 +54,10 @@ M.start = function(fun, path)
   vim.g.testbus_failures = nil
   fun()
 end
+M.clear = function()
+  vim.diagnostic.set(M.namespace(), 0, {}, {})
+  vim.api.nvim_buf_clear_namespace(vim.api.nvim_get_current_buf(), M.namespace(), 0, -1)
+end
 M.cmdline = function() vim.g.testbus_status = Status.CMDLINE end
 M.stop = function() vim.g.testbus_status = Status.STOPPED end
 M.panic = function() vim.g.testbus_status = Status.PANIC end

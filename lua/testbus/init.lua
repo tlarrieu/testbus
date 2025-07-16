@@ -54,6 +54,7 @@ M.redraw = function(data)
   local success, result = handler.handle(data, config.json_path)
   if success and result then draw(result) end
 end
+M.clear = function() state.clear() end
 
 M.start = function(fun) state.start(fun, config.json_path) end
 M.interrupt = function() if state.is_running() then state.stop() end end
