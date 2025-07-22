@@ -96,7 +96,6 @@ M.handle = function(data, path)
             local match = line:match(file_path .. ':(%d+)')
             if match then
               anchor = tonumber(match) - 1
-              break
             end
           end
         end
