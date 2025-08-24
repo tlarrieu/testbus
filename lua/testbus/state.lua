@@ -46,17 +46,17 @@ end
 M.start = function(fun, path)
   if M.is_running() then return end
   file.rm(path)
-  vim.diagnostic.set(M.namespace(), 0, {}, {})
-  vim.g.testbus_bufnr = vim.api.nvim_get_current_buf()
   set_adapter()
-  vim.api.nvim_buf_clear_namespace(vim.g.testbus_bufnr, M.namespace(), 0, -1)
+  M.clear()
   vim.g.testbus_status = Status.RUNNING
   vim.g.testbus_failures = nil
   fun()
 end
 M.clear = function()
-  vim.diagnostic.set(M.namespace(), 0, {}, {})
-  vim.api.nvim_buf_clear_namespace(vim.api.nvim_get_current_buf(), M.namespace(), 0, -1)
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    vim.diagnostic.set(M.namespace(), bufnr, {}, {})
+    vim.api.nvim_buf_clear_namespace(bufnr, M.namespace(), 0, -1)
+  end
 end
 M.cmdline = function() vim.g.testbus_status = Status.CMDLINE end
 M.stop = function() vim.g.testbus_status = Status.STOPPED end

@@ -17,18 +17,27 @@ Outcome = {
   FAILED = 'failed',
   MIXED = 'mixed',
 }
+---@alias bufnr integer
+
 ---@class Report
----@field bufnr integer buffer number to update
----@field outcomes table<string, Outcome> list of outcomes, indexed by line number
+---@field bufnr integer buffer number
+---@field outcomes table<integer, table<integer,Outcome>> list of outcomes, indexed by line number
 ---@field diag table<vim.Diagnostic> list of diagnostics with errors
----@param report Report the state to be drawn
-local draw = function(report)
-  for lnum, outcome in pairs(report.outcomes) do
-    local _, col = vim.api.nvim_buf_get_lines(report.bufnr, lnum, lnum + 1, true)[1]:find('^%s*')
-    local mark = { id = lnum, virt_text_pos = 'inline', virt_text = { assert(config.markers[outcome]), { ' ', 'Normal' } } }
-    vim.api.nvim_buf_set_extmark(report.bufnr, state.namespace(), lnum, col, mark)
+
+---@alias Reports table<bufnr, Report>
+
+---@param reports Reports the state to be drawn
+local draw = function(reports)
+  for bufnr, report in pairs(reports) do
+    vim.api.nvim_buf_clear_namespace(bufnr, state.namespace(), 0, -1)
+    for lnum, outcome in pairs(report.outcomes) do
+      local _, col = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]:find('^%s*')
+      local mark = { id = lnum, virt_text_pos = 'inline', virt_text = { assert(config.markers[outcome]), { ' ', 'Normal' } } }
+      vim.api.nvim_buf_set_extmark(bufnr, state.namespace(), lnum, col, mark)
+    end
+
+    vim.diagnostic.set(state.namespace(), bufnr, report.diag, config.diagnostics)
   end
-  vim.diagnostic.set(state.namespace(), report.bufnr, report.diag, config.diagnostics)
 end
 --------------------------------------------------------------------------------
 
