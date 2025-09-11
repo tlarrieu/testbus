@@ -34,9 +34,10 @@ return {
     panic = { icon = '󰀨', color = 'DiagnosticUnnecessary' },
   },
   markers = {
-    passed = { ' ✔ ', 'DiagnosticPass' },
-    mixed  = { ' ✘ ', 'DiagnosticMixed' },
-    failed = { ' ✘ ', 'DiagnosticFail' },
+    passed  = { ' ✔ ', 'DiagnosticPass' },
+    mixed   = { ' ➠ ', 'DiagnosticMixed' },
+    failed  = { ' ✘ ', 'DiagnosticFail' },
+    pending = { ' 󰔟 ', 'DiagnosticPending' },
   },
   diagnostics = { virtual_lines = true, virtual_text = false, underline = false },
   json_path = '/tmp/testbus.json',

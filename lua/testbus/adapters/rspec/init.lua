@@ -10,13 +10,14 @@ local M = {}
 -- This is fine for now, since we only run tests within a single spec file, but it'd
 -- be more robust to be generic.
 
-local create_diagnostic = function(bufnr, lnum, message)
+local create_diagnostic = function(bufnr, lnum, message, severity)
   local _, col = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]:find('^%s*')
+  severity = severity or vim.diagnostic.severity.ERROR
   return {
     bufnr = bufnr,
     lnum = lnum,
     col = col,
-    severity = vim.diagnostic.severity.ERROR,
+    severity = severity,
     message = message,
     source = 'rspec',
     namespace = state.namespace(),
@@ -79,7 +80,7 @@ M.handle = function(data, path)
         end
       end
       if error and errpath and lnum then
-        table.insert(diag, create_diagnostic(bufnr, lnum, errname .. ' ' .. error))
+        table.insert(diag, create_diagnostic(bufnr, lnum, errname .. ' ' .. error, vim.diagnostic.severity.ERROR))
       end
     end
 
@@ -104,7 +105,15 @@ M.handle = function(data, path)
           end
 
           local message = simplify_message(ansi.strip(example.exception.message))
-          table.insert(diag, create_diagnostic(bufnr, anchor, message))
+          table.insert(diag, create_diagnostic(bufnr, anchor, message, vim.diagnostic.severity.ERROR))
+        elseif example.status == 'pending' then
+          table.insert(diag,
+            create_diagnostic(
+              bufnr,
+              lnum,
+              simplify_message(ansi.strip(example.pending_message)),
+              vim.diagnostic.severity.INFO
+            ))
         end
       end
     end
