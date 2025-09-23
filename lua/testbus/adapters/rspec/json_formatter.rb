@@ -20,7 +20,7 @@ class JsonFormatter < RSpec::Core::Formatters::JsonFormatter
 
     _, file_path, line_number = shared.inclusion_location.match(%r{./(.*?):(\d+)}).to_a
 
-    super.merge(included_from: { file_path: file_path, line_number: line_number })
+    super.merge(included_from: { file_path: file_path, line_number: line_number.to_i })
   end
 
 end
