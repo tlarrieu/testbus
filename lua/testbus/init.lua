@@ -32,11 +32,9 @@ local draw = function(reports)
     vim.api.nvim_buf_clear_namespace(bufnr, state.namespace(), 0, -1)
     for lnum, outcome in pairs(report.outcomes) do
       local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
-      if line then
-        local _, col = line:find('^%s*')
-        local mark = { id = lnum, virt_text_pos = 'inline', virt_text = { assert(config.markers[outcome]), { ' ', 'Normal' } } }
-        vim.api.nvim_buf_set_extmark(bufnr, state.namespace(), lnum, col, mark)
-      end
+      local _, col = (line or ''):find('^%s*')
+      local mark = { id = lnum, virt_text_pos = 'inline', virt_text = { assert(config.markers[outcome]), { ' ', 'Normal' } } }
+      vim.api.nvim_buf_set_extmark(bufnr, state.namespace(), lnum, col or 0, mark)
     end
 
     vim.diagnostic.set(state.namespace(), bufnr, report.diag, config.diagnostics)

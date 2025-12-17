@@ -11,13 +11,14 @@ local M = {}
 -- be more robust to be generic.
 
 local create_diagnostic = function(bufnr, lnum, message, severity)
-  local _, col = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]:find('^%s*')
-  severity = severity or vim.diagnostic.severity.ERROR
+  local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
+
+  local _, col = (line or ''):find('^%s*')
   return {
     bufnr = bufnr,
     lnum = lnum,
-    col = col,
-    severity = severity,
+    col = col or 0,
+    severity = severity or vim.diagnostic.severity.ERROR,
     message = message,
     source = 'rspec',
     namespace = state.namespace(),
