@@ -34,10 +34,10 @@ local draw = function(reports)
       local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
       local _, col = (line or ''):find('^%s*')
       local mark = { id = lnum, virt_text_pos = 'inline', virt_text = { assert(config.markers[outcome]), { ' ', 'Normal' } } }
-      vim.api.nvim_buf_set_extmark(bufnr, state.namespace(), lnum, col or 0, mark)
+      pcall(vim.api.nvim_buf_set_extmark, bufnr, state.namespace(), lnum, col or 0, mark)
     end
 
-    vim.diagnostic.set(state.namespace(), bufnr, report.diag, config.diagnostics)
+    pcall(vim.diagnostic.set, state.namespace(), bufnr, report.diag, config.diagnostics)
   end
 end
 --------------------------------------------------------------------------------
