@@ -64,10 +64,11 @@ M.redraw = function(data)
   local success, result = handler.handle(data, config.json_path)
   if success and result then draw(result) end
 end
-M.clear = function() state.clear() end
+M.clear = state.clear
 
 M.start = function(fn) state.start(fn, config.json_path) end
 M.interrupt = function() if state.is_running() then state.stop() end end
+M.is_awaiting = state.is_awaiting
 M.adapters = adapters
 
 return M

@@ -31,6 +31,9 @@ M.is_running = function()
   return vim.g.testbus_status == Status.RUNNING
       or vim.g.testbus_status == Status.CMDLINE
 end
+M.is_awaiting = function()
+  return vim.g.testbus_status == Status.CMDLINE
+end
 M.is_done = function() return not M.is_running() end
 
 local set_adapter = function()
