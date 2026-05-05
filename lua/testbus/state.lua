@@ -53,7 +53,7 @@ M.start = function(fun, path)
   M.clear()
   vim.g.testbus_status = Status.RUNNING
   vim.g.testbus_failures = nil
-  fun()
+  if fun then fun() end
 end
 M.clear = function()
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
