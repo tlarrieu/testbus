@@ -38,6 +38,7 @@ local draw = function(reports)
     end
 
     pcall(vim.diagnostic.set, state.namespace(), bufnr, report.diag, config.diagnostics)
+    pcall(vim.diagnostic.setqflist, { title = ' tests results', namespace = state.namespace(), open = false })
   end
 end
 --------------------------------------------------------------------------------

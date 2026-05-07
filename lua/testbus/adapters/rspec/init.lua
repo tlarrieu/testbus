@@ -11,6 +11,7 @@ local M = {}
 -- be more robust to be generic.
 
 local create_diagnostic = function(bufnr, lnum, message, severity)
+  vim.fn.bufload(bufnr) -- ensure the buffer is loaded so next line actual returns something
   local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
 
   local _, col = (line or ''):find('^%s*')
@@ -70,6 +71,10 @@ M.handle = function(data, path)
   end
 
   local reports = {}
+
+  for _, example in ipairs(json.examples) do
+    vim.cmd.badd(example.included_from.file_path or example.file_path)
+  end
 
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     local bufname = vim.api.nvim_buf_get_name(bufnr)
