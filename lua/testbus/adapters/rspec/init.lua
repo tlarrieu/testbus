@@ -40,7 +40,7 @@ M.handle = function(data, path)
   local stdout = table.concat(data)
   if stdout:find('shutting down') then return false, state.stop() end
   if stdout:find('pry') then
-    local filename, linenr = ansi.strip(stdout):match("From: (.*):(%d*) :")
+    local filename, linenr = ansi.strip(stdout):match("From: (.*):(%d+).* :")
     if filename and linenr then
       local bufnr = vim.fn.bufnr(vim.fs.normalize(filename), true)
       if bufnr and bufnr ~= -1 then
